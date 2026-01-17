@@ -1,0 +1,12 @@
+influxdb-client
+mlflow
+xgboost
+scikit-learn
+joblib
+numpy
+matplotlib
+pandas
+python-dotenv
+openmeteo-requests
+requests-cache 
+retry-requests
