@@ -1,0 +1,20 @@
+stages:
+  preprocess:
+    cmd: python src/preprocess.py
+    deps:
+    - data/raw/mito_dataset_14march_2025_16jan_2026.csv
+    - src/preprocess.py
+    outs:
+    - data/processed/mito_processed_14march_2025_16jan_2026.csv
+  train:
+    cmd: python src/train.py
+    deps:
+    - data/processed/mito_processed_14march_2025_16jan_2026.csv
+    - src/train.py
+    outs:
+    - models/model.pkl
+  evaluate:
+    cmd: models/model.pkl
+    deps:
+    - data/processed/mito_processed_14march_2025_16jan_2026.csv
+    - models/model.pkl
