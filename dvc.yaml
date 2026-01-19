@@ -6,15 +6,22 @@ stages:
     - src/preprocess.py
     outs:
     - data/processed/mito_processed_14march_2025_16jan_2026.csv
+    params:
+    - preprocess
   train:
     cmd: python src/train.py
+    params:
+    - train
     deps:
     - data/processed/mito_processed_14march_2025_16jan_2026.csv
     - src/train.py
     outs:
     - models/model.pkl
   evaluate:
-    cmd: models/model.pkl
+    cmd: python src/evaluate.py
+    params:
+    - evaluate
     deps:
     - data/processed/mito_processed_14march_2025_16jan_2026.csv
     - models/model.pkl
+    - src/evaluate.py
