@@ -1,2 +1,6 @@
 .env
-appletree_mlops_env
+appletree_mlops_env.cache.sqlite
+.cache.sqlite
+data/raw/
+data/processed/
+models/
