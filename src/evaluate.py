@@ -9,8 +9,11 @@ import logging
 from dotenv import dotenv_values, load_dotenv
 
 logging.basicConfig(level=logging.INFO)
-os.chdir("/Users/urkarsh.kulshrestha/Documents/AI_environment/work_env/appletree_end_to_end_forecasting")
-with open("./params.yaml", "rb") as file:
+load_dotenv()
+REPO_DIR = os.getenv("REPO_DIR")
+if not REPO_DIR:
+    raise RuntimeError("REPO_DIR is not set")
+with open(os.path.join(REPO_DIR, "params.yaml"), "rb") as file:
     params = yaml.safe_load(file)['evaluate']
 
 def evaluate_model(data_path, feature_cols, target_col, model_path, test_size, random_state):
@@ -41,7 +44,7 @@ def evaluate_model(data_path, feature_cols, target_col, model_path, test_size, r
         mlflow.set_tag("Data Used", "Mito Data March,2025-January,2026")
 
 if __name__ == "__main__":
-    load_dotenv("/Users/urkarsh.kulshrestha/Documents/AI_environment/work_env/appletree_end_to_end_forecasting/.env")
+    load_dotenv(os.path.join(REPO_DIR, ".env"))
     mlflow.set_tracking_uri(os.environ.get("MLFLOW_TRACKING_URI"))
     mlflow.set_experiment("Mito Load Forecasting with MLOps Principles")
     evaluate_model(params['data'], 

@@ -1,8 +1,25 @@
 stages:
+  fetch_temperature:
+    cmd: python src/fetch_temperature_data.py
+    deps:
+    - data/raw/data_without_temperature/
+    - src/fetch_temperature_data.py
+    params:
+      - fetch_temperature
+    outs:
+    - data/raw/only_temperature/hourly_temperature_data.csv
+  combine:
+    cmd: python src/combine_site_temperature_data.py
+    deps:
+    - data/raw/only_temperature/hourly_temperature_data.csv
+    - data/raw/data_without_temperature/
+    - src/combine_site_temperature_data.py
+    outs:
+    - data/raw/data_with_temperature/mito_dataset_14march_2025_16jan_2026.csv
   preprocess:
     cmd: python src/preprocess.py
     deps:
-    - data/raw/mito_dataset_14march_2025_16jan_2026.csv
+    - data/raw/data_with_temperature/mito_dataset_14march_2025_16jan_2026.csv
     - src/preprocess.py
     outs:
     - data/processed/mito_processed_14march_2025_16jan_2026.csv

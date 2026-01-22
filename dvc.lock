@@ -1,0 +1,163 @@
+schema: '2.0'
+stages:
+  preprocess:
+    cmd: python src/preprocess.py
+    deps:
+    - path: 
+        data/raw/data_with_temperature/mito_dataset_14march_2025_16jan_2026.csv
+      hash: md5
+      md5: cb3e7529c5e61d9b5b6eb188792f079b
+      size: 426261
+    - path: src/preprocess.py
+      hash: md5
+      md5: 5286cd3add6bf187d735529cd1579640
+      size: 2110
+    params:
+      params.yaml:
+        preprocess:
+          temperature:
+            start_date: '2025-03-14'
+            end_date: '2026-01-16'
+          input_path: 
+            data/raw/data_with_temperature/mito_dataset_14march_2025_16jan_2026.csv
+          output_path: data/processed/mito_processed_14march_2025_16jan_2026.csv
+          lag_time: 5
+    outs:
+    - path: data/processed/mito_processed_14march_2025_16jan_2026.csv
+      hash: md5
+      md5: 1546fa0c200e7fa3babdbb4ab8cc5f72
+      size: 1405221
+  train:
+    cmd: python src/train.py
+    deps:
+    - path: data/processed/mito_processed_14march_2025_16jan_2026.csv
+      hash: md5
+      md5: 1546fa0c200e7fa3babdbb4ab8cc5f72
+      size: 1405221
+    - path: src/train.py
+      hash: md5
+      md5: 34146b97ad142eaa5aeff437b2a95e3c
+      size: 4702
+    params:
+      params.yaml:
+        train:
+          model_type: xgboost
+          data: data/processed/mito_processed_14march_2025_16jan_2026.csv
+          model_path: models/model.pkl
+          target: netload
+          feature_cols:
+          - temperature
+          - netload_lag1
+          - netload_lag2
+          - netload_lag3
+          - netload_lag4
+          - netload_lag5
+          - Month
+          - Day_of_Week
+          - DayOfYear
+          - Hour
+          train_size: 0.7
+          val_size: 0.15
+          random_state: 42
+          n_estimators:
+          - 100
+          - 200
+          max_depth:
+          - 3
+          - 5
+          - 7
+          learning_rate:
+          - 0.1
+          - 0.15
+          - 0.01
+          subsample:
+          - 0.8
+          - 1.0
+          cyclical_features: true
+    outs:
+    - path: models/model.pkl
+      hash: md5
+      md5: 9851b8360e8656418c805c50b7c3208e
+      size: 253933
+  evaluate:
+    cmd: python src/evaluate.py
+    deps:
+    - path: data/processed/mito_processed_14march_2025_16jan_2026.csv
+      hash: md5
+      md5: 1546fa0c200e7fa3babdbb4ab8cc5f72
+      size: 1405221
+    - path: models/model.pkl
+      hash: md5
+      md5: 9851b8360e8656418c805c50b7c3208e
+      size: 253933
+    - path: src/evaluate.py
+      hash: md5
+      md5: eecffc861d3bf3becdd2b2ded873f1d8
+      size: 2030
+    params:
+      params.yaml:
+        evaluate:
+          data: data/processed/mito_processed_14march_2025_16jan_2026.csv
+          model_path: models/model.pkl
+          metrics:
+          - rmse
+          - mae
+          train_size: 0.7
+          val_size: 0.15
+          test_size: 0.15
+          random_state: 42
+          feature_cols:
+          - temperature
+          - netload_lag1
+          - netload_lag2
+          - netload_lag3
+          - netload_lag4
+          - netload_lag5
+          - Month
+          - Day_of_Week
+          - DayOfYear
+          - Hour
+          target: netload
+  fetch_temperature:
+    cmd: python src/fetch_temperature_data.py
+    deps:
+    - path: data/raw/data_without_temperature/
+      hash: md5
+      md5: 01cec1036b835379cb276201cb869546.dir
+      size: 848033
+      nfiles: 1
+    - path: src/fetch_temperature_data.py
+      hash: md5
+      md5: 9b3d37ac72860ab1fd5d768d442aaffe
+      size: 2398
+    params:
+      params.yaml:
+        fetch_temperature:
+          enabled: true
+    outs:
+    - path: data/raw/only_temperature/hourly_temperature_data.csv
+      hash: md5
+      md5: fe3dd6c663b2249bbb91d15d80f1f674
+      size: 235046
+  combine:
+    cmd: python src/combine_site_temperature_data.py
+    deps:
+    - path: data/raw/data_without_temperature/
+      hash: md5
+      md5: 01cec1036b835379cb276201cb869546.dir
+      size: 848033
+      nfiles: 1
+    - path: data/raw/only_temperature/hourly_temperature_data.csv
+      hash: md5
+      md5: fe3dd6c663b2249bbb91d15d80f1f674
+      size: 235046
+    - path: src/combine_site_temperature_data.py
+      hash: md5
+      md5: a75dbe59b280d6c7ed334c9958e9ab6f
+      size: 1194
+    outs:
+    - path: 
+        data/raw/data_with_temperature/mito_dataset_14march_2025_16jan_2026.csv
+      hash: md5
+      md5: cb3e7529c5e61d9b5b6eb188792f079b
+      size: 426261

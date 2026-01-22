@@ -3,12 +3,16 @@ import yaml
 import os
 import numpy as np
 import logging
+from dotenv import load_dotenv
+
 
 
 logging.basicConfig(level=logging.INFO)
 
+load_dotenv()
+REPO_DIR = os.getenv("REPO_DIR")
 ## Load the parameters and file paths from param.yaml
-with open("/Users/urkarsh.kulshrestha/Documents/AI_environment/work_env/appletree_end_to_end_forecasting/params.yaml", "r") as file:
+with open(os.path.join(REPO_DIR, "params.yaml"), "r") as file:
     params = yaml.safe_load(file)['preprocess']
 
 '''This function will load input data and convert netload into rolling lag values'''
@@ -29,9 +33,9 @@ def create_training_features(input_df, lag_time):
     input_df['time'] = input_df['time'].astype(str)
     input_df['Datetime'] = pd.to_datetime(input_df['time'])
     input_df['Hour'] = input_df['Datetime'].dt.hour
-    input_df['Day_of_Week'] = input_df['Datetime'].dt.day
+    input_df['Day_of_Week'] = input_df['Datetime'].dt.dayofweek
     input_df['Month'] = input_df['Datetime'].dt.month
-    input_df['DayOfYear'] = input_df['Datetime'].dt.year
+    input_df['DayOfYear'] = input_df['Datetime'].dt.dayofyear
     for i in range(1, lag_time + 1):
         input_df[f"netload_lag{i}"] = input_df['netload'].shift(i)
     lag_cols = [f"netload_lag{i}" for i in range(1, lag_time + 1)]

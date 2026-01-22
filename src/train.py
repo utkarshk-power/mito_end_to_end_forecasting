@@ -14,9 +14,12 @@ from dotenv import dotenv_values, load_dotenv
 
 
 logging.basicConfig(level=logging.INFO)
-os.chdir("/Users/urkarsh.kulshrestha/Documents/AI_environment/work_env/appletree_end_to_end_forecasting")
+load_dotenv()
+REPO_DIR = os.getenv("REPO_DIR")
+if not REPO_DIR:
+    raise RuntimeError("REPO_DIR is not set")
 
-with open('./params.yaml', "rb") as file:
+with open(os.path.join(REPO_DIR, "params.yaml"), "rb") as file:
     params = yaml.safe_load(file)['train'] 
 
 def prepare_train_test_data(input_path, feature_cols, target, train_size, val_size, random_state):
@@ -49,7 +52,7 @@ def train_model(x_train, y_train, n_estimators, max_depth, learning_rate, subsam
     return best_model, grid_search.best_params_
 
 if __name__ == "__main__":
-    load_dotenv("/Users/urkarsh.kulshrestha/Documents/AI_environment/work_env/appletree_end_to_end_forecasting/.env")
+    load_dotenv(os.path.join(REPO_DIR, ".env"))
     logging.basicConfig(level=logging.INFO)
     print(os.environ.get("MLFLOW_TRACKING_URI"))
     print(os.environ.get("MLFLOW_TRACKING_USERNAME"))
