@@ -14,7 +14,7 @@ LATEST_SHA = os.getenv("LATEST_SHA")
 
 with DAG('retrain_if_new_data',
          start_date=datetime(2026,1,21),
-         schedule=timedelta(days=1),
+         schedule=timedelta(minutes=5),
          catchup = False,
          default_args = { 'retries': 1, 'retry_delay': timedelta(minutes=5)},
          tags = ['retraining', 'new_data']) as dag:
