@@ -2,6 +2,7 @@ from airflow import DAG
 from airflow.operators.bash import BashOperator
 from airflow.operators.python import ShortCircuitOperator, PythonOperator
 from datetime import datetime, timedelta
+from airflow.models import Variable
 import os
 
 ''' When retraining with new data, we are assuming that it will happen on central/dev side'''
@@ -37,7 +38,7 @@ with DAG('retrain_if_new_data',
                                                 bash_command = "cd {{var.value.REPO_DIR}} && dvc repro")
     def save_latest_sha(**context):
         latest = context["ti"].xcom_pull(task_ids="get_branch_sha")
-        context["var"]["value"]["LATEST_SHA"] = latest
+        Variable.set("LATEST_SHA", latest)
 
     save_sha = PythonOperator(
         task_id="save_latest_sha",
@@ -45,4 +46,3 @@ with DAG('retrain_if_new_data',
       )
 
     get_latest_sha >> compare_latest_sha >> checkout_latest_sha >> pull_latest_data >> retrain_model >> save_sha
-
