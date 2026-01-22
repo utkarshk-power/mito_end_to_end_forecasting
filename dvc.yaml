@@ -15,14 +15,14 @@ stages:
     - data/raw/data_without_temperature/
     - src/combine_site_temperature_data.py
     outs:
-    - data/raw/data_with_temperature/mito_dataset_14march_2025_16jan_2026.csv
+    - data/raw/data_with_temperature/mito_dataset_14march_2025_20jan_2026.csv
   preprocess:
     cmd: python src/preprocess.py
     deps:
-    - data/raw/data_with_temperature/mito_dataset_14march_2025_16jan_2026.csv
+    - data/raw/data_with_temperature/mito_dataset_14march_2025_20jan_2026.csv
     - src/preprocess.py
     outs:
-    - data/processed/mito_processed_14march_2025_16jan_2026.csv
+    - data/processed/mito_processed_14march_2025_20jan_2026.csv
     params:
     - preprocess
   train:
@@ -30,7 +30,7 @@ stages:
     params:
     - train
     deps:
-    - data/processed/mito_processed_14march_2025_16jan_2026.csv
+    - data/processed/mito_processed_14march_2025_20jan_2026.csv
     - src/train.py
     outs:
     - models/model.pkl
@@ -39,6 +39,6 @@ stages:
     params:
     - evaluate
     deps:
-    - data/processed/mito_processed_14march_2025_16jan_2026.csv
+    - data/processed/mito_processed_14march_2025_20jan_2026.csv
     - models/model.pkl
     - src/evaluate.py

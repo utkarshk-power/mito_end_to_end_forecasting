@@ -4,13 +4,13 @@ preprocess:
   temperature:
     start_date: "2025-03-14"
     end_date: "2026-01-16"
-  input_path: "data/raw/data_with_temperature/mito_dataset_14march_2025_16jan_2026.csv"
-  output_path: "data/processed/mito_processed_14march_2025_16jan_2026.csv"
+  input_path: "data/raw/data_with_temperature/mito_dataset_14march_2025_20jan_2026.csv"
+  output_path: "data/processed/mito_processed_14march_2025_20jan_2026.csv"
   lag_time: 5
 
 train:
   model_type: xgboost
-  data: data/processed/mito_processed_14march_2025_16jan_2026.csv
+  data: data/processed/mito_processed_14march_2025_20jan_2026.csv
   model_path: models/model.pkl
   target: "netload"
   feature_cols:
@@ -34,7 +34,7 @@ train:
   cyclical_features: True
 
 evaluate:
-  data: data/processed/mito_processed_14march_2025_16jan_2026.csv
+  data: data/processed/mito_processed_14march_2025_20jan_2026.csv
   model_path: models/model.pkl
   metrics:
     - rmse
