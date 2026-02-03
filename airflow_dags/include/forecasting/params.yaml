@@ -1,0 +1,57 @@
+fetch_temperature:
+  enabled: true
+preprocess:
+  temperature:
+    start_date: "2025-03-14"
+    end_date: "2026-01-16"
+  input_path: "data/raw/data_with_temperature/mito_dataset_14march_2025_20jan_2026.csv"
+  output_path: "data/processed/mito_processed_14march_2025_20jan_2026.csv"
+  lag_time: 5
+
+train:
+  model_type: xgboost
+  data: data/processed/mito_processed_14march_2025_20jan_2026.csv
+  model_path: models/model.pkl
+  target: "netload"
+  feature_cols:
+    - temperature
+    - netload_lag1
+    - netload_lag2
+    - netload_lag3
+    - netload_lag4
+    - netload_lag5
+    - Month
+    - Day_of_Week
+    - DayOfYear
+    - Hour
+  train_size: 0.7
+  val_size: 0.15
+  random_state: 42
+  n_estimators: [100,200]
+  max_depth: [3,5,7]
+  learning_rate: [0.1, 0.15, 0.01]
+  subsample: [0.8, 1.0]
+  cyclical_features: True
+
+evaluate:
+  data: data/processed/mito_processed_14march_2025_20jan_2026.csv
+  model_path: models/model.pkl
+  metrics:
+    - rmse
+    - mae
+  train_size: 0.7
+  val_size: 0.15
+  test_size: 0.15
+  random_state: 42
+  feature_cols:
+    - temperature
+    - netload_lag1
+    - netload_lag2
+    - netload_lag3
+    - netload_lag4
+    - netload_lag5
+    - Month
+    - Day_of_Week
+    - DayOfYear
+    - Hour
+  target: "netload"

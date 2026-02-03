@@ -1,0 +1,46 @@
+## YAML file for inference stage in Load Forecasting
+temperature:
+  latitude: 36.345
+  longitude: 140.465
+  hourly: temperature_2m
+  timezone: UTC
+  forecast_horizon_days: 3
+  api_url: "https://api.open-meteo.com/v1/forecast"
+  output: data/inference/raw/only_temperature/hourly_temperature_data.csv
+
+lag_data:
+  load_fields:
+    - "actualNetLoad"
+  output: data/inference/raw/data_without_temperature/inference_lag_data.csv
+  lag_start_date: "2026-1-10 07:00:00"
+  lag_end_date: "2026-1-10 12:00:00"
+
+preprocess_infer:
+  input_temperature: data/inference/raw/only_temperature/hourly_temperature_data.csv
+  input_load: data/inference/raw/data_without_temperature/inference_lag_data.csv
+  output: data/inference/raw/data_with_temperature/inference_input_data.csv
+  lag_time: 5
+  cols_needed:
+    - Hour
+    - temperature
+    - Day_of_Week
+    - Month
+    - DayOfYear
+    - netload_lag1
+    - netload_lag2
+    - netload_lag3
+    - netload_lag4
+    - netload_lag5
+  temp_start_date: "2026-1-10 13:00:00"
+  temp_end_date: "2026-1-13 12:00:00"
+
+predict:
+  model: models/model.pkl
+  input: data/inference/raw/data_with_temperature/inference_input_data.csv
+  output: data/inference/predictions/inference_predictions_
+  resume: false
+
+
+
+
+    
