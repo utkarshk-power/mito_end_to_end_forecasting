@@ -3,6 +3,7 @@ import yaml
 import openmeteo_requests
 import requests_cache
 from retry_requests import retry
+import os
 
 # Load inference config
 with open("inference.yaml", "r") as file:
