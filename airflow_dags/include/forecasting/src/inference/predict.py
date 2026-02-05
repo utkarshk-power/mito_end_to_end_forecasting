@@ -53,7 +53,7 @@ def load_forecast_input(path):
 
     if "Average_Temperature_C" not in data.columns:
         temp_col = None
-        for candidate in ["Temperature_C", "temperature_2m"]:
+        for candidate in ["Temperature_C", "temperature_2m", "temperature"]:
             if candidate in data.columns:
                 temp_col = candidate
                 break
