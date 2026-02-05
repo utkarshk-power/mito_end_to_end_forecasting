@@ -81,7 +81,7 @@ def build_feature_row(timestamp, temperature, lag_state):
 
 def write_to_influx_db(predictions, bucket_name, org, api_token, url):
     client = influxdb_client.InfluxDBClient(url=url, token=api_token, org=org)
-    write_api = client.write_api()
+    write_api = client.write_api(write_options=SYNCHRONOUS)
     ## Using point object for type safety
     for _, row in predictions.iterrows():
         point = (
