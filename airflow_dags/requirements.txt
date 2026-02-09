@@ -13,3 +13,4 @@ requests-cache
 retry-requests
 xgboost
 scikit-learn
+schedule

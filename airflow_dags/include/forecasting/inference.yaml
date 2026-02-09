@@ -40,6 +40,11 @@ predict:
   output: data/inference/predictions/inference_predictions_
   resume: false
 
+new_data_params:
+  fields: "actualNetLoad"
+  measurement: "FncPvSc"
+  output_file: "latest_data/latest_site_data.csv"
+
 
 
 
