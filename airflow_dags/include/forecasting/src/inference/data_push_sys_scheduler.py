@@ -1,5 +1,3 @@
-## Task: Push the data periodically from edge device to DVC via systemd based scheduler
-
 import time
 import schedule
 import influxdb_client
@@ -22,14 +20,18 @@ def read_data_from_influx():
     query_api = client.query_api()
     measurement = config.get("new_data_params", {}).get("measurement", "")
     fields = config.get("new_data_params", {}).get("fields", "actualNetLoad")
-    fields_filter = f'r["_field"] == "{fields}"'
+       # Read from state.yaml (ISO string with timezone)
+    start_iso = state.get("data_timestamp", {}).get("last_pushed")
+    if not start_iso:
+        # safety fallback if state missing
+        start_iso = "2026-01-13T12:00:00+00:00"
+
+    # Flux wants a time value. time(v: "...") is reliable for ISO strings.
     query = f'''
     from(bucket: "{os.getenv("INFLUX_BUCKET_NAME")}")
-    |> range(start:-15d)
-    |> filter(fn: (r) => 
-        r["_measurement"] == "{measurement}"
-        )
-    |> filter(fn: (r) => {fields_filter})
+    |> range(start: time(v: "{start_iso}"), stop: now())
+    |> filter(fn: (r) => r["_measurement"] == "{measurement}")
+    |> filter(fn: (r) => r["_field"] == "{fields}")
     |> aggregateWindow(every: 60m, fn: mean, createEmpty: false)
     |> pivot(rowKey: ["_time"], columnKey: ["_field"], valueColumn: "_value")
     '''
@@ -43,16 +45,22 @@ def save_data_as_csv(data):
     df = data if isinstance(data, pd.DataFrame) else pd.DataFrame(data)
     filename=config.get("new_data_params", {}).get("output_file", "latest_site_data.csv")
     df.to_csv(filename, index=False)
+    print(f"Data saved to {filename} on {pd.Timestamp.now(tz='UTC').isoformat()}")
 
 def push_data_to_dvc(data):
-    current_max_timestamp = data["_time"].max() if not data.empty else None
+    if data is None or data.empty:
+        print("No data to push.")
+        return
+    now = pd.Timestamp.now(tz="UTC")
+    current_max_timestamp = data["_time"].max()
     current_max_timestamp_dt = pd.to_datetime(current_max_timestamp) if current_max_timestamp else None
-    last_max_timestamp = state.get("data_timestamp", {}).get("latest", None)
-    last_max_timestamp_dt = pd.to_datetime(last_max_timestamp) if last_max_timestamp else None
-    if last_max_timestamp_dt==None or current_max_timestamp_dt > last_max_timestamp_dt:
-        update_state = True
-    else:
-        update_state = False
+    last_push_timestamp = state.get("data_timestamp", {}).get("last_pushed", None)
+    last_push_timestamp_dt = pd.to_datetime(last_push_timestamp) if last_push_timestamp else None
+
+    new_data_available = (last_push_timestamp_dt is None) or (current_max_timestamp_dt > last_push_timestamp_dt)
+    enough_time_passed = (last_push_timestamp_dt is None) or (now - last_push_timestamp_dt >= pd.Timedelta(days=15))
+
+    update_state = new_data_available and enough_time_passed
 
     if update_state:
         repo_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))) 
@@ -61,13 +69,15 @@ def push_data_to_dvc(data):
         subprocess.run(["git", "pull", "--ff-only", "origin", "data-snapshots"], cwd=repo_root, check=True)
         subprocess.run(["dvc", "add", output_file], cwd=repo_root, check=True)
         subprocess.run(["git", "add", f"{output_file}.dvc"], cwd=repo_root, check=True)
-        subprocess.run(["git", "commit", "-m", f"Data Snapshot {datetime.datetime.now()-datetime.timedelta(days=15)}_{datetime.datetime.now()}"], 
+        subprocess.run(["git", "commit", "-m", f"Data Snapshot {current_max_timestamp_dt.isoformat()}"], 
                    cwd=repo_root, check=True)
         subprocess.run(["dvc", "push"], cwd=repo_root, check=True)
         subprocess.run(["git", "push", "origin", "data-snapshots"], cwd=repo_root, check=True)
-        state["data_timestamp"]["latest"] = current_max_timestamp_dt.isoformat()
+        state["data_timestamp"]["last_pushed"] = current_max_timestamp_dt.isoformat()
         with open("state.yaml", "w") as file:
             yaml.dump(state, file)
+    else:
+        print("No new data to push to DVC.")
 
 def scheduled_tasks():
     print("Reading New Data from site database and saving as .csv file")
