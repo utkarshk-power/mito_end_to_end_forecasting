@@ -69,14 +69,17 @@ def push_data_to_dvc(data):
         subprocess.run(["git", "pull", "--ff-only", "origin", "data-snapshots"], cwd=repo_root, check=True)
         subprocess.run(["dvc", "add", output_file], cwd=repo_root, check=True)
         subprocess.run(["git", "add", f"{output_file}.dvc"], cwd=repo_root, check=True)
+        subprocess.run(["git", "add", os.path.join(os.path.dirname(output_file), ".gitignore")], cwd=repo_root, check=True)
         subprocess.run(["git", "commit", "-m", f"Data Snapshot {current_max_timestamp_dt.isoformat()}"], 
                    cwd=repo_root, check=True)
         subprocess.run(["dvc", "push"], cwd=repo_root, check=True)
         subprocess.run(["git", "push", "origin", "data-snapshots"], cwd=repo_root, check=True)
+        print("Data pushed to DVC")
         state["data_timestamp"]["last_pushed"] = current_max_timestamp_dt.isoformat()
         with open("state.yaml", "w") as file:
             yaml.dump(state, file)
         subprocess.run(["git", "checkout", "main"], cwd=repo_root, check=True)
+        print("Checkout out to main")
     else:
         print("No new data to push to DVC.")
     
