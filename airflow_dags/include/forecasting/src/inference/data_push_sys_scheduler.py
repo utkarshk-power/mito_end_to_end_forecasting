@@ -61,9 +61,8 @@ def push_data_to_dvc(data):
     enough_time_passed = (last_push_timestamp_dt is None) or (now - last_push_timestamp_dt >= pd.Timedelta(days=1))
 
     update_state = new_data_available and enough_time_passed
-
+    repo_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))) 
     if update_state:
-        repo_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))) 
         #repo_root = os.path.dirname(os.path.abspath(__file__))
         output_file = config.get("new_data_params", {}).get("output_file", "latest_site_data.csv")
         subprocess.run(["git", "checkout", "data-snapshots"], cwd=repo_root, check=True)
@@ -77,9 +76,10 @@ def push_data_to_dvc(data):
         state["data_timestamp"]["last_pushed"] = current_max_timestamp_dt.isoformat()
         with open("state.yaml", "w") as file:
             yaml.dump(state, file)
+        subprocess.run(["git", "checkout", "main"], cwd=repo_root, check=True)
     else:
         print("No new data to push to DVC.")
-        subprocess.run(["git", "checkout", "main"], cwd=repo_root, check=True)
+    
 
 def scheduled_tasks():
     print("Reading New Data from site database and saving as .csv file")
