@@ -63,8 +63,8 @@ def push_data_to_dvc(data):
     update_state = new_data_available and enough_time_passed
 
     if update_state:
-        #repo_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))) 
-        repo_root = os.path.dirname(os.path.abspath(__file__))
+        repo_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))) 
+        #repo_root = os.path.dirname(os.path.abspath(__file__))
         output_file = config.get("new_data_params", {}).get("output_file", "latest_site_data.csv")
         subprocess.run(["git", "checkout", "data-snapshots"], cwd=repo_root, check=True)
         subprocess.run(["git", "pull", "--ff-only", "origin", "data-snapshots"], cwd=repo_root, check=True)
