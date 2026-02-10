@@ -1,5 +1,4 @@
 import time
-import schedule
 import influxdb_client
 import pandas as pd
 import os
