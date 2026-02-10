@@ -24,7 +24,7 @@ def read_data_from_influx():
     if not start_iso:
         # safety fallback if state missing
         start_iso = "2026-01-13T12:00:00+00:00"
-
+    start_iso = pd.to_datetime(start_iso, utc=True).isoformat()
     # Flux wants a time value. time(v: "...") is reliable for ISO strings.
     query = f'''
     from(bucket: "{os.getenv("INFLUX_BUCKET_NAME")}")
