@@ -79,6 +79,7 @@ def push_data_to_dvc(data):
             yaml.dump(state, file)
     else:
         print("No new data to push to DVC.")
+        subprocess.run(["git", "checkout", "main"], cwd=repo_root, check=True)
 
 def scheduled_tasks():
     print("Reading New Data from site database and saving as .csv file")
