@@ -42,6 +42,7 @@ def read_data_from_influx():
 
 def save_data_as_csv(data):
     df = data if isinstance(data, pd.DataFrame) else pd.DataFrame(data)
+    os.makedirs(os.path.dirname(config.get("new_data_params", {}).get("output_file", "latest_site_data.csv")), exist_ok=True)
     filename=config.get("new_data_params", {}).get("output_file", "latest_site_data.csv")
     df.to_csv(filename, index=False)
     print(f"Data saved to {filename} on {pd.Timestamp.now(tz='UTC').isoformat()}")
