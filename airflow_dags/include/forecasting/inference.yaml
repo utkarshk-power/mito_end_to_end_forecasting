@@ -43,7 +43,8 @@ predict:
 new_data_params:
   fields: "actualNetLoad"
   measurement: "FncPvSc"
-  output_file: "latest_data/latest_site_data.csv"
+  output_file: "data/raw/data_without_temperature/latest_site_data.csv"
+ 
 
 
 
