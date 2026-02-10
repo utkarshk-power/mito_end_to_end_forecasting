@@ -58,7 +58,7 @@ def push_data_to_dvc(data):
     last_push_timestamp_dt = pd.to_datetime(last_push_timestamp) if last_push_timestamp else None
 
     new_data_available = (last_push_timestamp_dt is None) or (current_max_timestamp_dt > last_push_timestamp_dt)
-    enough_time_passed = (last_push_timestamp_dt is None) or (now - last_push_timestamp_dt >= pd.Timedelta(days=1))
+    enough_time_passed = (last_push_timestamp_dt is None) or (now - last_push_timestamp_dt >= pd.Timedelta(minutes=5))
 
     update_state = new_data_available and enough_time_passed
     #repo_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))) 
