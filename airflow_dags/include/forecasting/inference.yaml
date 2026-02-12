@@ -43,7 +43,7 @@ predict:
 new_data_params:
   fields: "actualNetLoad"
   measurement: "FncPvSc"
-  output_file: "airflow_dags/include/forecasting/latest_data/latest_site_data.csv"
+  output_file: "airflow_dags/include/forecasting/src/inference/latest_data/latest_site_data.csv"
  
 
 
