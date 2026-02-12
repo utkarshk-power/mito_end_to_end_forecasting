@@ -63,17 +63,18 @@ def push_data_to_dvc(data):
     update_state = new_data_available and enough_time_passed
     #repo_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))) 
     if update_state:
-        repo_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))))
-        DVC_root = "/opt/mito_end_to_end_forecasting/.venv/bin/dvc"
+        #repo_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))))
+        repo_root = "/opt/mito_end_to_end_forecasting"
+        DVC = "/opt/mito_end_to_end_forecasting/.venv/bin/dvc"
         output_file = config.get("new_data_params", {}).get("output_file", "latest_site_data.csv")
         subprocess.run(["git", "checkout", "data-snapshots"], cwd=repo_root, check=True)
         subprocess.run(["git", "pull", "--ff-only", "origin", "data-snapshots"], cwd=repo_root, check=True)
-        subprocess.run([DVC_root, "add", output_file], cwd=repo_root, check=True)
+        subprocess.run([DVC, "add", output_file], cwd=repo_root, check=True)
         subprocess.run(["git", "add", f"{output_file}.dvc"], cwd=repo_root, check=True)
         subprocess.run(["git", "add", os.path.join(os.path.dirname(output_file), ".gitignore")], cwd=repo_root, check=True)
-        subprocess.run(["git", "commit", "-m", f"Data Snapshot {current_max_timestamp_dt.isoformat()}"], 
-                   cwd=repo_root, check=True)
-        subprocess.run([DVC_root, "push"], cwd=repo_root, check=True)
+        subprocess.run(["git", "commit", "-m", f"Data Snapshot {current_max_timestamp_dt.isoformat()}"],
+                       cwd=repo_root, check=True)
+        subprocess.run([DVC, "push"], cwd=repo_root, check=True)
         subprocess.run(["git", "push", "origin", "data-snapshots"], cwd=repo_root, check=True)
         print("Data pushed to DVC")
         state["data_timestamp"]["last_pushed"] = current_max_timestamp_dt.isoformat()
