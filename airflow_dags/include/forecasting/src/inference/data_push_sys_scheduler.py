@@ -8,11 +8,14 @@ import datetime
 import subprocess
 
 dotenv.load_dotenv()
-with open("inference.yaml") as file:
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+STATE_PATH = os.path.join(SCRIPT_DIR, "state.yaml")
+INFER_YAML_PATH = os.path.join(SCRIPT_DIR, "inference.yaml")
+with open(INFER_YAML_PATH) as file:
     config = yaml.safe_load(file)
-with open("state.yaml") as file:
+with open(STATE_PATH) as file:
     state = yaml.safe_load(file)
-
+snapshots_root = "/opt/mito_end_to_end_forecasting_snapshots"
 def read_data_from_influx():
     # Function to read data from InfluxDB
     client = influxdb_client.InfluxDBClient(url=os.getenv("INFLUX_URL"), token=os.getenv("INFLUX_TOKEN"), org=os.getenv("INFLUX_ORG"))
@@ -42,10 +45,11 @@ def read_data_from_influx():
 
 def save_data_as_csv(data):
     df = data if isinstance(data, pd.DataFrame) else pd.DataFrame(data)
-    os.makedirs(os.path.dirname(config.get("new_data_params", {}).get("output_file", "latest_site_data.csv")), exist_ok=True)
-    filename=config.get("new_data_params", {}).get("output_file", "latest_site_data.csv")
-    df.to_csv(filename, index=False)
-    print(f"Data saved to {filename} on {pd.Timestamp.now(tz='UTC').isoformat()}")
+    output_file = config["new_data_params"]["output_file"]
+    abs_path = os.path.join(snapshots_root, output_file)
+    os.makedirs(os.path.dirname(abs_path), exist_ok=True)
+    df.to_csv(abs_path, index=False)
+    print(f"Data saved to {abs_path} on {pd.Timestamp.now(tz='UTC').isoformat()}")
 
 def push_data_to_dvc(data):
     if data is None or data.empty:
@@ -62,7 +66,7 @@ def push_data_to_dvc(data):
 
     update_state = new_data_available and enough_time_passed
     #repo_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))) 
-    snapshots_root = "/opt/mito_end_to_end_forecasting_snapshots"
+    
     if update_state:
         #repo_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))))
         DVC = "/opt/mito_end_to_end_forecasting/.venv/bin/dvc"
