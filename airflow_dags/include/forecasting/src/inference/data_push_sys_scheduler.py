@@ -15,6 +15,7 @@ with open(INFER_YAML_PATH) as file:
     config = yaml.safe_load(file)
 with open(STATE_PATH) as file:
     state = yaml.safe_load(file)
+
 snapshots_root = "/opt/mito_end_to_end_forecasting_snapshots"
 def read_data_from_influx():
     # Function to read data from InfluxDB
@@ -29,14 +30,16 @@ def read_data_from_influx():
         start_iso = "2026-01-13T12:00:00+00:00"
     start_iso = pd.to_datetime(start_iso, utc=True).isoformat()
     # Flux wants a time value. time(v: "...") is reliable for ISO strings.
+    
     query = f'''
     from(bucket: "{os.getenv("INFLUX_BUCKET_NAME")}")
-    |> range(start: time(v: "{start_iso}"), stop: now())
+    |> range(start: 0, stop: now())
     |> filter(fn: (r) => r["_measurement"] == "{measurement}")
     |> filter(fn: (r) => r["_field"] == "{fields}")
     |> aggregateWindow(every: 60m, fn: mean, createEmpty: false)
     |> pivot(rowKey: ["_time"], columnKey: ["_field"], valueColumn: "_value")
     '''
+
     result = query_api.query_data_frame(query=query, org=os.getenv("INFLUX_ORG"))
     client.close()
     if isinstance(result, list):
