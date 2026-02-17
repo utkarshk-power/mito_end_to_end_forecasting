@@ -22,6 +22,9 @@ if not REPO_DIR:
 with open(os.path.join(REPO_DIR, "params.yaml"), "rb") as file:
     params = yaml.safe_load(file)['train'] 
 
+with open(os.path.join(REPO_DIR, "data/raw/latest_data_time/last_data_time.txt"), "r") as f:
+    last_data_time = f.read().strip()
+
 def prepare_train_test_data(input_path, feature_cols, target, train_size, val_size, random_state):
     data=pd.read_csv(input_path)
     x= data[feature_cols]
@@ -85,7 +88,7 @@ if __name__ == "__main__":
                              "val_mse": val_mse, "val_mae": val_mae, "val_r2": val_r2})
         mlflow.set_tag("model_type", "XGBoost Regressor")
         mlflow.set_tag("Developer", "Utkarsh Kulshrestha")
-        mlflow.set_tag("Data Used", " Mito Data March,2025-January,2026")
+        mlflow.set_tag("Data Used Until", f"{last_data_time}")
         mlflow.set_tag("Site", "Apple Tree - Mito")
         signature = mlflow.models.infer_signature(x_train, train_predictions)
         if tracking_url_type_store != "file":
