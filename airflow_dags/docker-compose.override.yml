@@ -1,0 +1,5 @@
+services:
+  scheduler:
+    volumes:
+      - /Users/urkarsh.kulshrestha/Documents/AI_environment/work_env/apple_tree_local_copy:/opt/airflow/mito_repo
+
