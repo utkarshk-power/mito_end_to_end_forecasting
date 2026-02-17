@@ -36,8 +36,7 @@ with DAG('retrain_if_new_data',
                                     bash_command = "cd {{var.value.REPO_DIR}} && dvc pull latest_data/latest_site_data.csv")
     
     copy_to_raw_folder = BashOperator(task_id="copy_to_raw_folder",
-                                       bash_command="cd {{var.value.REPO_DIR}} && cp latest_data/latest_site_data.csv data/raw/data_without_temperature/")
-    
+                                       bash_command="cd {{var.value.REPO_DIR}} && mkdir -p data/raw/data_without_temperature/ && cp latest_data/latest_site_data.csv data/raw/data_without_temperature/")
     retrain_model = BashOperator(task_id='retrain_model_with_new_data',
                                                 bash_command = "cd {{var.value.REPO_DIR}} && dvc repro")
     def save_latest_sha(**context):
