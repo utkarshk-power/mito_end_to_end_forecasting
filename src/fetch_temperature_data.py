@@ -26,7 +26,8 @@ if not data_file:
     raise RuntimeError("No CSV files found in raw data directory")
 
 site_data = pd.read_csv(os.path.join(raw_data_dir, data_file[0]))
-site_data["_time"] = pd.to_datetime(site_data["_time"], utc=True)
+dt = pd.to_datetime(site_data["_time"], utc=True, format="mixed")
+site_data["_time"] = dt.dt.floor("s")
 start_date = site_data["_time"].iloc[0].date()
 end_date = site_data["_time"].iloc[-1].date()
 

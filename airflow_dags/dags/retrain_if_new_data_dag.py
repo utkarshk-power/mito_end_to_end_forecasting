@@ -31,9 +31,13 @@ with DAG('retrain_if_new_data',
                                                python_callable=should_retrain)
     checkout_latest_sha = BashOperator(
       task_id='checkout_latest_sha',
-      bash_command="cd {{ var.value.REPO_DIR }} && git checkout {{ ti.xcom_pull(task_ids='get_branch_sha') }}")
+      bash_command="cd {{ var.value.REPO_DIR }} && git -f checkout {{ ti.xcom_pull(task_ids='get_branch_sha') }}")
     pull_latest_data = BashOperator(task_id='pull_latest_data',
-                                    bash_command = "cd {{var.value.REPO_DIR}} && dvc pull data/raw/data_without_temperature/mito_dataset_14march_2025_20jan_2026.csv")
+                                    bash_command = "cd {{var.value.REPO_DIR}} && dvc pull latest_data/latest_site_data.csv")
+    
+    copy_to_raw_folder = BashOperator(task_id="copy_to_raw_folder",
+                                       bash_command="cd {{var.value.REPO_DIR}} && cp latest_data/latest_site_data.csv data/raw/data_without_temperature/")
+    
     retrain_model = BashOperator(task_id='retrain_model_with_new_data',
                                                 bash_command = "cd {{var.value.REPO_DIR}} && dvc repro")
     def save_latest_sha(**context):
