@@ -18,6 +18,7 @@ with DAG('retrain_if_new_data',
          schedule=timedelta(minutes=5),
          catchup = False,
          default_args = { 'retries': 1, 'retry_delay': timedelta(minutes=5)},
+         max_active_runs=1,
          tags = ['retraining', 'new_data']) as dag:
     get_latest_sha = BashOperator(task_id='get_branch_sha',
                                     bash_command= "cd {{var.value.REPO_DIR}} && git fetch {{var.value.REMOTE_NAME}} "
