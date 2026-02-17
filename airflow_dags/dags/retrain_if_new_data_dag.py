@@ -49,4 +49,4 @@ with DAG('retrain_if_new_data',
         python_callable=save_latest_sha,
       )
 
-    get_latest_sha >> compare_latest_sha >> checkout_latest_sha >> pull_latest_data >> retrain_model >> save_sha
+    get_latest_sha >> compare_latest_sha >> checkout_latest_sha >> pull_latest_data >> copy_to_raw_folder >> retrain_model >> save_sha
