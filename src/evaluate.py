@@ -16,6 +16,9 @@ if not REPO_DIR:
 with open(os.path.join(REPO_DIR, "params.yaml"), "rb") as file:
     params = yaml.safe_load(file)['evaluate']
 
+with open(os.path.join(REPO_DIR, "data/raw/latest_data_time/last_data_time.txt"), "r") as f:
+    last_data_time = f.read().strip()
+
 def evaluate_model(data_path, feature_cols, target_col, model_path, test_size, random_state):
     data=pd.read_csv(data_path)
     x= data[feature_cols]
@@ -41,7 +44,7 @@ def evaluate_model(data_path, feature_cols, target_col, model_path, test_size, r
         mlflow.set_tag("model_stage", "evaluate")
         mlflow.set_tag("Test Data Split", "15 %")
         mlflow.set_tag("Developer", "Utkarsh Kulshrestha")
-        mlflow.set_tag("Data Used", "Mito Data March,2025-January,2026")
+        mlflow.set_tag("Data Used until", last_data_time)
 
 if __name__ == "__main__":
     load_dotenv(os.path.join(REPO_DIR, ".env"))
