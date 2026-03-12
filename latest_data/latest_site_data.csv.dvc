@@ -1,5 +1,5 @@
 outs:
-- md5: 3d7d5b8997b4295179909e6c1193f764
-  size: 1050568
+- md5: ca46e84c50960e0216b0945a5f935cf1
+  size: 1050690
   hash: md5
   path: latest_site_data.csv
