@@ -44,9 +44,24 @@ new_data_params:
   fields: "actualNetLoad"
   measurement: "FncPvSc"
   output_file: "latest_data/latest_site_data.csv"
- 
+
+data_drift:
+  reference_training_data: data/inference/reference_training_data/reference_data.csv
+  reference_recent_data: data/inference/reference_recent_data/recent_data.csv
+  production_data: data/inference/processed/latest_site_data_processed.csv
+  drift_features: ["temperature", "netload_lag1", "netload_lag2", "netload_lag3", "netload_lag4", "netload_lag5"]
+  columns: ["FeatureType", "SiteID", "Type", "SeasonBin", "HourBin", "DayType", "IsHoliday", "Value"]
+  min_ref_samples_for_iqr: 5
+  min_ref_samples_for_drift: 4
+  output_file: "latest_data/latest_data_drift.csv"
+  
+data_drift_trigger:  
+  static_warning_mild_threshold: 0.75
+  static_warning_strong_threshold: 1.25
+  recent_warning_mild_threshold: 0.5
+  recent_warning_strong_threshold: 1.0
+  static_retrain_min_cycle: 12
+  recent_retrain_min_cycle: 6
 
 
-
-
-    
+  
